@@ -57,32 +57,58 @@ await axios.put(`${API_URL}/${id}`, { text: newText });
 
       {/* Todos List */}
       <ul className="space-y-2">
-        {todos.map(todo => (
-          <li
-            key={todo._id}
-            className="bg-gray-700 px-3 py-2 rounded flex justify-between items-center"
-          >
-            {/* Todo text */}
-            <span>{todo.text || todo.title}</span>
+  {todos.map(todo => (
+    <li
+      key={todo._id}
+      className="bg-gray-700 px-3 py-2 rounded flex justify-between items-center"
+    >
+      {editingId === todo._id ? (
+        // Show input field when editing
+        <input
+          className="flex-1 px-2 py-1 rounded text-black"
+          value={editingText}
+          onChange={e => setEditingText(e.target.value)}
+        />
+      ) : (
+        // Otherwise, just show text
+        <span>{todo.text || todo.title}</span>
+      )}
 
-            {/* Edit/Delete buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => editTodo(todo._id)}
-                className="bg-yellow-500 px-2 py-1 rounded hover:bg-yellow-600 text-black text-sm"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteTodo(todo._id)}
-                className="bg-red-600 px-2 py-1 rounded hover:bg-red-700 text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="flex gap-2">
+        {editingId === todo._id ? (
+          <button
+            className="bg-green-500 px-2 py-1 rounded hover:bg-green-600 text-black text-sm"
+            onClick={async () => {
+              await axios.put(`${API_URL}/${todo._id}`, { title: editingText });
+              setEditingId(null);
+              fetchTodos();
+            }}
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            className="bg-yellow-500 px-2 py-1 rounded hover:bg-yellow-600 text-black text-sm"
+            onClick={() => {
+              setEditingId(todo._id);
+              setEditingText(todo.text || todo.title);
+            }}
+          >
+            Edit
+          </button>
+        )}
+
+        <button
+          className="bg-red-600 px-2 py-1 rounded hover:bg-red-700 text-sm"
+          onClick={() => deleteTodo(todo._id)}
+        >
+          Delete
+        </button>
+      </div>
+    </li>
+  ))}
+</ul>
+
     </div>
   </div>
 );
